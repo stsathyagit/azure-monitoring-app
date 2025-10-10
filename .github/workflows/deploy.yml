@@ -31,7 +31,10 @@ jobs:
         run: |
           cd infra
           terraform init
-          terraform apply -auto-approve
+          terraform apply -auto-approve \
+          -var "github_username=${{ github.repository_owner }}" \
+          -var "github_repo=${{ github.event.repository.name }}" \
+          -var "github_branch=main"
 
       # --- Build and Deploy Frontend + Backend ---
       - name: Build and Deploy Azure Static Web App
