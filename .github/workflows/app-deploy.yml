@@ -30,12 +30,13 @@ jobs:
         run: |
           npm ci
           npm run build
+          echo "✅ Build complete. Tenant: $REACT_APP_TENANT_ID"
 
-      - name: Check build folder
-        run: |
-          echo "✅ Checking if build folder exists..."
-          ls -R frontend || echo "❌ frontend folder not found"
-          ls -R frontend/build || echo "❌ build folder not found"
+      # - name: Check build folder
+      #   run: |
+      #     echo "✅ Checking if build folder exists..."
+      #     ls -R frontend || echo "❌ frontend folder not found"
+      #     ls -R frontend/build || echo "❌ build folder not found"
 
       # --- Deploy to Azure Static Web App ---
       - name: Build and Deploy Azure Static Web App
