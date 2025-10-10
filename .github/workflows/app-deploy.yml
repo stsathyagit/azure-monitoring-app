@@ -42,5 +42,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "frontend"
           #api_location: "backend"
-          app_artifact_location: "frontend/build"
+          app_artifact_location: "build"
           deployment_action: "upload"
