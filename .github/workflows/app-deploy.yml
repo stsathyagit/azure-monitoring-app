@@ -1,6 +1,7 @@
 name: Deploy App (Frontend + Backend)
 
 on:
+  workflow_dispatch:    # Manual trigger
   push:
     branches:
       - main
