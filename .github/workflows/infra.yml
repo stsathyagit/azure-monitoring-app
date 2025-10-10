@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'infra/**'       # Run only if infra files change
+    # paths:
+    #   - 'infra/**'       # Run only if infra files change
 
 jobs:
   deploy:
