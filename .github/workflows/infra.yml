@@ -2,9 +2,9 @@ name: Deploy Azure Monitoring App
 
 on:
   workflow_dispatch:    # Manual trigger
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
     # paths:
     #   - 'infra/**'       # Run only if infra files change
 
