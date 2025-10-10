@@ -28,6 +28,12 @@ jobs:
           npm ci
           npm run build
 
+      - name: Check build folder
+        run: |
+          echo "✅ Checking if build folder exists..."
+          ls -R frontend || echo "❌ frontend folder not found"
+          ls -R frontend/build || echo "❌ build folder not found"
+
       # --- Deploy to Azure Static Web App ---
       - name: Build and Deploy Azure Static Web App
         uses: Azure/static-web-apps-deploy@v1
@@ -35,6 +41,6 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "frontend"
-          api_location: "backend"
+          #api_location: "backend"
           app_artifact_location: "frontend/build"
           deployment_action: "upload"
