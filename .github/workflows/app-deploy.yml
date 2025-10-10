@@ -24,6 +24,9 @@ jobs:
       # --- Build Frontend ---
       - name: Install and Build Frontend
         working-directory: frontend
+        env:
+          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
+          REACT_APP_TENANT_ID: ${{ secrets.REACT_APP_TENANT_ID }}
         run: |
           npm ci
           npm run build
