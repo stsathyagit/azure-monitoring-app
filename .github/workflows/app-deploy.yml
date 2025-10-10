@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'infra/**'    # Don’t trigger if only infra changed
+    paths:
+      - 'frontend/**'    # Don’t trigger if only infra changed
+      - 'backend/**'
 
 jobs:
   deploy:
