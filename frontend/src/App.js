@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useMsal } from "@azure/msal-react";
+import {
+  useMsal,
+  AuthenticatedTemplate,
+  UnauthenticatedTemplate,
+} from "@azure/msal-react";
+import { loginRequest } from "./authConfig";
 import {
   ResponsiveContainer,
   BarChart,
@@ -9,6 +14,30 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+
+// ✅ Remove any new PublicClientApplication creation here!
+
+function LoginButton() {
+  const { instance } = useMsal();
+  return <button onClick={() => instance.loginPopup(loginRequest)}>Sign in</button>;
+}
+
+function LogoutButton() {
+  const { instance } = useMsal();
+  return <button onClick={() => instance.logoutPopup()}>Sign out</button>;
+}
+
+function Profile() {
+  const { accounts } = useMsal();
+  const account = accounts && accounts[0];
+  if (!account) return null;
+  return (
+    <div>
+      <p>Signed in as: {account.username}</p>
+      <p>Name: {account.name}</p>
+    </div>
+  );
+}
 
 function BillingData() {
   const { instance, accounts } = useMsal();
@@ -34,8 +63,8 @@ function BillingData() {
 
       const data = await response.json();
 
-      const rows = data.properties.rows || [];
-      const columns = data.properties.columns.map((c) => c.name);
+      const rows = data.properties?.rows || [];
+      const columns = data.properties?.columns?.map((c) => c.name) || [];
 
       const formatted = rows.map((row) => {
         const record = {};
@@ -60,7 +89,7 @@ function BillingData() {
     } finally {
       setLoading(false);
     }
-  }, [instance, accounts]); // dependencies for useCallback
+  }, [instance, accounts]);
 
   useEffect(() => {
     fetchBillingData();
@@ -100,10 +129,28 @@ function BillingData() {
         </div>
       )}
 
-
       {!loading && !billingData && <p>No billing data available.</p>}
     </div>
   );
 }
 
-export default BillingData;
+// ✅ This should be your default export!
+export default function App() {
+  return (
+    <div style={{ padding: 24 }}>
+      <h1>Azure AD Login (MSAL)</h1>
+
+      <UnauthenticatedTemplate>
+        <p>You are not signed in.</p>
+        <LoginButton />
+      </UnauthenticatedTemplate>
+
+      <AuthenticatedTemplate>
+        <p>You are signed in.</p>
+        <Profile />
+        <LogoutButton />
+        <BillingData />
+      </AuthenticatedTemplate>
+    </div>
+  );
+}
