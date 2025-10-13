@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useMsal } from "@azure/msal-react";
 import {
   ResponsiveContainer,
@@ -16,7 +16,7 @@ function BillingData() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchBillingData = async () => {
+  const fetchBillingData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -34,19 +34,22 @@ function BillingData() {
 
       const data = await response.json();
 
-      // Parse Azure Cost Management API response
       const rows = data.properties.rows || [];
       const columns = data.properties.columns.map((c) => c.name);
 
-      // Convert to usable data for chart
       const formatted = rows.map((row) => {
         const record = {};
         row.forEach((value, i) => {
           record[columns[i]] = value;
         });
         return {
-          date: record.UsageDate || record.UsageDateTime || record.UsageDateKey || record.UsageDate_1,
-          cost: record.PreTaxCost || record.Cost || record.totalCost || 0,
+          date:
+            record.UsageDate ||
+            record.UsageDateTime ||
+            record.UsageDateKey ||
+            record.Date ||
+            "Unknown",
+          cost: parseFloat(record.PreTaxCost || record.Cost || record.totalCost || 0),
         };
       });
 
@@ -57,11 +60,11 @@ function BillingData() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [instance, accounts]); // dependencies for useCallback
 
   useEffect(() => {
     fetchBillingData();
-  }, []);
+  }, [fetchBillingData]);
 
   return (
     <div style={{ marginTop: 20 }}>
