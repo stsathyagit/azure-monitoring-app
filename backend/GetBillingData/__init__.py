@@ -1,46 +1,41 @@
-import logging
-import requests
 import json
+import requests
 import azure.functions as func
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Billing data request received (delegated access).')
+    """Tenant-level Azure Cost Management query."""
+    access_token = req.headers.get("Authorization", "").replace("Bearer ", "")
+    if not access_token:
+        return func.HttpResponse("Missing access token", status_code=401)
 
-    try:
-        # Get the token from the frontend request
-        auth_header = req.headers.get("Authorization")
-        if not auth_header or not auth_header.startswith("Bearer "):
-            return func.HttpResponse("Missing or invalid Authorization header", status_code=401)
+    # Tenant-level scope URL (no subscription ID)
+    url = "https://management.azure.com/providers/Microsoft.CostManagement/query?api-version=2023-03-01"
 
-        access_token = auth_header.split(" ")[1]
-
-        # Replace with your subscription ID
-        subscription_id = "YOUR_SUBSCRIPTION_ID"
-
-        url = f"https://management.azure.com/subscriptions/{subscription_id}/providers/Microsoft.CostManagement/query?api-version=2023-03-01"
-        body = {
-            "type": "Usage",
-            "timeframe": "MonthToDate",
-            "dataset": {
-                "granularity": "Daily",
-                "aggregation": {
-                    "totalCost": {"name": "PreTaxCost", "function": "Sum"}
-                }
-            }
+    # Example payload: aggregate actual cost, group by subscription
+    payload = {
+        "type": "ActualCost",
+        "timeframe": "MonthToDate",
+        "dataset": {
+            "granularity": "Daily",
+            "aggregation": {
+                "totalCost": {"name": "PreTaxCost", "function": "Sum"}
+            },
+            "grouping": [
+                {"type": "Dimension", "name": "SubscriptionName"}
+            ]
         }
+    }
 
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json"
-        }
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
 
-        response = requests.post(url, headers=headers, data=json.dumps(body))
-        if response.status_code != 200:
-            logging.error(f"Azure API error: {response.text}")
-            return func.HttpResponse(f"Failed to fetch billing data: {response.text}", status_code=response.status_code)
+    resp = requests.post(url, headers=headers, json=payload)
 
-        return func.HttpResponse(response.text, mimetype="application/json")
+    # Pass Azure API errors straight through
+    if not resp.ok:
+        return func.HttpResponse(resp.text, status_code=resp.status_code, mimetype="application/json")
 
-    except Exception as e:
-        logging.exception("Error retrieving billing data.")
-        return func.HttpResponse(str(e), status_code=500)
+    data = resp.json()
+    return func.HttpResponse(json.dumps(data), status_code=200, mimetype="application/json")
