@@ -5,8 +5,8 @@ on:
   # push:
   #   branches:
   #     - main
-    # paths-ignore:
-    #   - 'infra/**'
+  # paths-ignore:
+  #   - 'infra/**'
 
 jobs:
   deploy:
@@ -14,14 +14,21 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # --- Setup Node.js for frontend ---
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
 
-      # --- Build Frontend ---
+      # --- Setup Python for backend ---
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # --- Install and Build Frontend ---
       - name: Install and Build Frontend
         working-directory: frontend
         env:
@@ -30,21 +37,22 @@ jobs:
         run: |
           npm ci
           npm run build
-          echo "✅ Build complete. Tenant: $REACT_APP_TENANT_ID"
+          echo "✅ Frontend build complete. Tenant: $REACT_APP_TENANT_ID"
 
-      # - name: Check build folder
-      #   run: |
-      #     echo "✅ Checking if build folder exists..."
-      #     ls -R frontend || echo "❌ frontend folder not found"
-      #     ls -R frontend/build || echo "❌ build folder not found"
+      # --- Install Backend Dependencies ---
+      - name: Install Backend Dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r GetBillingData/requirements.txt -t .
 
-      # --- Deploy to Azure Static Web App ---
+      # --- Deploy both frontend + backend ---
       - name: Build and Deploy Azure Static Web App
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "frontend"
-          #api_location: "backend"
+          api_location: "backend"
           app_artifact_location: "build"
           deployment_action: "upload"
