@@ -1,41 +1,40 @@
-import logging
 import azure.functions as func
 import requests
 import json
+import logging
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info("GetSubscriptions function triggered.")
-
+    
     auth_header = req.headers.get("Authorization")
     if not auth_header:
+        logging.error("Missing Authorization header")
         return func.HttpResponse(
             json.dumps({"error": "Missing Authorization header"}),
             status_code=401,
             mimetype="application/json"
         )
 
-    token = auth_header.replace("Bearer ", "").strip()
+    logging.info(f"Authorization header length: {len(auth_header)}")
+    logging.info(f"Authorization header (first 50 chars): {auth_header[:50]}")
 
-    # Azure REST API to list subscriptions
     url = "https://management.azure.com/subscriptions?api-version=2020-01-01"
-
     headers = {
-        "Authorization": f"Bearer {token}",
+        "Authorization": auth_header,
         "Content-Type": "application/json"
     }
 
     try:
         response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
+        logging.info(f"ARM response status: {response.status_code}")
+        if response.status_code != 200:
+            logging.error(f"ARM response body: {response.text}")
+            response.raise_for_status()
 
-        # Extract only what we need
+        data = response.json()
         subscriptions = [
-            {
-                "subscriptionId": sub["subscriptionId"],
-                "displayName": sub["displayName"]
-            }
-            for sub in data.get("value", [])
+            {"subscriptionId": s["subscriptionId"], "displayName": s["displayName"]}
+            for s in data.get("value", [])
         ]
 
         return func.HttpResponse(
@@ -43,11 +42,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             mimetype="application/json",
             status_code=200
         )
-
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching subscriptions: {e}")
+    except Exception as e:
+        logging.exception("Error in GetSubscriptions")
         return func.HttpResponse(
             json.dumps({"error": str(e)}),
-            mimetype="application/json",
-            status_code=500
+            status_code=500,
+            mimetype="application/json"
         )
