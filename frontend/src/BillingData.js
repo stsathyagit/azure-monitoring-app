@@ -10,7 +10,8 @@ export default function BillingData() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const getAccessToken = async () => {
+  // ✅ Wrap getAccessToken in useCallback so it can be a stable dependency
+  const getAccessToken = useCallback(async () => {
     try {
       const tokenResponse = await instance.acquireTokenSilent({
         account: accounts[0],
@@ -23,8 +24,9 @@ export default function BillingData() {
       });
       return tokenResponse.accessToken;
     }
-  };
+  }, [instance, accounts]);
 
+  // ✅ Fetch subscriptions
   const fetchSubscriptions = useCallback(async () => {
     try {
       setLoading(true);
@@ -50,8 +52,9 @@ export default function BillingData() {
     } finally {
       setLoading(false);
     }
-  }, [instance, accounts]);
+  }, [getAccessToken]); // ✅ include getAccessToken
 
+  // ✅ Fetch billing data
   const fetchBillingData = useCallback(
     async (subscriptionId) => {
       if (!subscriptionId) return;
@@ -101,13 +104,15 @@ export default function BillingData() {
         setLoading(false);
       }
     },
-    [instance, accounts]
+    [getAccessToken] // ✅ include getAccessToken
   );
 
+  // Fetch subscriptions on mount
   useEffect(() => {
     fetchSubscriptions();
   }, [fetchSubscriptions]);
 
+  // Fetch billing data when subscription changes
   useEffect(() => {
     if (selectedSubscription) {
       fetchBillingData(selectedSubscription);
