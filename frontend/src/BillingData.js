@@ -4,6 +4,26 @@ import BillingView from "./BillingView";
 
 export default function BillingData() {
   const { instance, accounts } = useMsal();
+
+  //debugging
+  useEffect(() => {
+    async function logToken() {
+      if (accounts.length > 0) {
+        try {
+          const tokenResponse = await instance.acquireTokenSilent({
+            account: accounts[0],
+            scopes: ["https://management.azure.com/.default"],
+          });
+          console.log("🔑 Access token:", tokenResponse.accessToken);
+        } catch (err) {
+          console.error("Failed to get token:", err);
+        }
+      }
+    }
+    logToken();
+  }, [instance, accounts]);
+
+
   const [subscriptions, setSubscriptions] = useState([]);
   const [selectedSubscription, setSelectedSubscription] = useState("");
   const [billingData, setBillingData] = useState([]);
