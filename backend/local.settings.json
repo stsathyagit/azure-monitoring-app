@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": true,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "CfDJ8NXe6gZn29ZLozr9otTOnJ41Pyq0QLNI83m69dmdW3T9zb5XmpgkxGNrXKAuXWtHyp8BBzqZapMSYNuvyOQa1L4zHepC1LrOkSnaMfK4w4puDC4x3ASmaa7WeYbsqpbxkA==",
+    "PYTHON_PATH": "CfDJ8NXe6gZn29ZLozr9otTOnJ4XDv158TI/Ec8H97bawXh15oImJKLqrE5SnIeijrQp4G1F/RNH9rPNnYjDt78OIfyXNvhJfViEQ19j0X7rBJVF4fYqBRUrP8NhA/L9vxVBXePyQGSDnUr5RlBO1O2BFKktgCPPQlW99s2lPwNS7f9k52ujmor2EBg+WyRt3fvcRIBm1qoQIZwYFG60L4RAvKg="
+  },
+  "ConnectionStrings": {},
+  "Host": {}
+}
