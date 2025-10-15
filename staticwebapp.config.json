@@ -12,5 +12,10 @@
       "serve": "/index.html",
       "statusCode": 200
     }
-  ]
+  ],
+  "auth": {
+    "identityProviders": {
+      "customOpenIdConnectProviders": []
+    }
+  }
 }
