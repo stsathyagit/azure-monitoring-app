@@ -39,20 +39,20 @@ jobs:
           npm run build
           echo "✅ Frontend build complete. Tenant: $REACT_APP_TENANT_ID"
 
-      # --- Install Backend Dependencies ---
-      - name: Install Backend Dependencies
-        working-directory: backend
+      # --- Install API Dependencies ---
+      - name: Install API Dependencies
+        working-directory: api
         run: |
           python -m pip install --upgrade pip
           pip install -r GetBillingData/requirements.txt -t .
 
-      # --- Deploy both frontend + backend ---
+      # --- Deploy both frontend + api ---
       - name: Build and Deploy Azure Static Web App
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "frontend"
-          api_location: "backend"
+          api_location: "api"
           app_artifact_location: "build"
           deployment_action: "upload"
