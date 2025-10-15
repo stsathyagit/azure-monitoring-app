@@ -63,9 +63,12 @@ export default function BillingData() {
       if (!res.ok) throw new Error("Failed to load subscriptions");
 
       const data = await res.json();
-      setSubscriptions(data.subscriptions);
-      if (data.subscriptions.length > 0)
-        setSelectedSubscription(data.subscriptions[0].subscriptionId);
+      const subs = data.value || [];
+      setSubscriptions(subs);
+      if (subs.length > 0) {
+        setSelectedSubscription(subs[0].subscriptionId);
+      }
+
     } catch (err) {
       console.error(err);
       setError(err.message);
