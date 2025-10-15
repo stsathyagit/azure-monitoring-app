@@ -1,14 +1,16 @@
 # Resource Group
-resource "azurerm_resource_group" "rg" {
-  name     = "rg-azure-monitoring-demo"
-  location = var.location
-}
+# resource "azurerm_resource_group" "rg" {
+#   name     = "rg-azure-monitoring-demo"
+#   location = var.location
+# }
+
+
 
 # Azure Static Web App
 resource "azurerm_static_site" "swa" {
   name                = "azure-monitoring-app"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
   sku_tier            = "Standard"
   sku_size            = "Standard"
 
@@ -24,8 +26,8 @@ resource "azurerm_static_site" "swa" {
 # Application Insights (optional - logs and monitoring)
 resource "azurerm_application_insights" "appinsights" {
   name                = "appi-azure-monitoring-demo"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   application_type    = "web"
 }
 
@@ -34,8 +36,8 @@ resource "azurerm_application_insights" "appinsights" {
 # ----------------------------------------------------
 resource "azurerm_storage_account" "func_storage" {
   name                     = "stazuremonitor${random_string.suffix.result}"
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
+  resource_group_name      = data.azurerm_resource_group.rg.name
+  location                 = data.azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
@@ -54,8 +56,8 @@ resource "random_string" "suffix" {
 # ----------------------------------------------------
 resource "azurerm_service_plan" "func_plan" {
   name                = "asp-azure-monitoring-demo"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   os_type             = "Linux"
   sku_name            = "Y1"   # Y1 = Consumption plan (Free)
 }
@@ -65,8 +67,8 @@ resource "azurerm_service_plan" "func_plan" {
 # ----------------------------------------------------
 resource "azurerm_linux_function_app" "funcapp" {
   name                       = "func-azure-monitoring-demo"
-  resource_group_name         = azurerm_resource_group.rg.name
-  location                    = azurerm_resource_group.rg.location
+  resource_group_name         = data.azurerm_resource_group.rg.name
+  location                    = data.azurerm_resource_group.rg.location
   service_plan_id             = azurerm_service_plan.func_plan.id
   storage_account_name        = azurerm_storage_account.func_storage.name
   storage_account_access_key  = azurerm_storage_account.func_storage.primary_access_key
@@ -115,5 +117,5 @@ output "static_web_app_url" {
 
 
 output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
+  value = data.azurerm_resource_group.rg.name
 }
