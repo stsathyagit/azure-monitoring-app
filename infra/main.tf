@@ -93,12 +93,12 @@ resource "azurerm_linux_function_app" "funcapp" {
 # ----------------------------------------------------
 # (Optional) Grant Static Web App permission to call Function App
 # ----------------------------------------------------
-resource "azurerm_role_assignment" "swa_to_func" {
-  scope                = azurerm_linux_function_app.funcapp.id
-  role_definition_name = "Reader"
-  principal_id         = azurerm_static_site.swa.identity[0].principal_id
-  depends_on           = [azurerm_static_site.swa, azurerm_linux_function_app.funcapp]
-}
+# resource "azurerm_role_assignment" "swa_to_func" {
+#   scope                = azurerm_linux_function_app.funcapp.id
+#   role_definition_name = "Reader"
+#   principal_id         = azurerm_static_site.swa.identity[0].principal_id
+#   depends_on           = [azurerm_static_site.swa, azurerm_linux_function_app.funcapp]
+# }
 
 # ----------------------------------------------------
 # Outputs
