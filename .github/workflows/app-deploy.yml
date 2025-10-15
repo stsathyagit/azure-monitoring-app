@@ -1,12 +1,10 @@
 name: Deploy App (Frontend + Backend)
 
 on:
-  workflow_dispatch:
   # push:
   #   branches:
   #     - main
-  # paths-ignore:
-  #   - 'infra/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -16,19 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- Setup Node.js for frontend ---
+      # --- Build and Deploy Frontend (Static Web App) ---
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
 
-      # --- Setup Python for backend ---
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      # --- Install and Build Frontend ---
       - name: Install and Build Frontend
         working-directory: frontend
         env:
@@ -37,22 +28,19 @@ jobs:
         run: |
           npm ci
           npm run build
-          echo "✅ Frontend build complete. Tenant: $REACT_APP_TENANT_ID"
 
-      # --- Install API Dependencies ---
-      - name: Install API Dependencies
-        working-directory: api
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r GetBillingData/requirements.txt -t .
-
-      # --- Deploy both frontend + api ---
-      - name: Build and Deploy Azure Static Web App
+      - name: Deploy Static Web App
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "frontend"
-          api_location: "api"
-          app_artifact_location: "build"
-          deployment_action: "upload"
+          output_location: "build"
+
+      # --- Deploy Backend (Function App) ---
+      - name: Deploy Backend to Function App
+        uses: azure/functions-action@v1
+        with:
+          app-name: "func-azure-monitoring-demo"  # 👈 your Function App name
+          package: "./api"
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
