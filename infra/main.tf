@@ -90,6 +90,11 @@ resource "azurerm_linux_function_app" "funcapp" {
   identity {
     type = "SystemAssigned"
   }
+
+  cors {
+    allowed_origins = ["https://proud-island-016709403.2.azurestaticapps.net"]
+    support_credentials = true
+  }
 }
 
 # ----------------------------------------------------
