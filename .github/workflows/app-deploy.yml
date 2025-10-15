@@ -13,6 +13,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
 
       # --- Build and Deploy Frontend (Static Web App) ---
       - name: Setup Node.js
@@ -39,6 +40,19 @@ jobs:
           action: "upload"
 
       # --- Deploy Backend (Function App) ---
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ✅ Install Backend Dependencies before deploy
+      - name: Install Backend Dependencies
+        working-directory: api
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -t .
+          
       - name: Deploy Backend to Function App
         uses: azure/functions-action@v1
         with:
