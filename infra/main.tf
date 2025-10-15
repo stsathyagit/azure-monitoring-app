@@ -9,9 +9,16 @@ resource "azurerm_static_site" "swa" {
   name                = "azure-monitoring-app"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku_tier            = "Free"
-  sku_size            = "Free"
+  sku_tier            = "Standard"
+  sku_size            = "Standard"
 
+  identity {
+    type = "SystemAssigned"
+  }
+
+  tags = {
+    environment = "demo"
+  }
 }
 
 # Application Insights (optional - logs and monitoring)
