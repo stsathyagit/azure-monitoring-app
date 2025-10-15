@@ -36,7 +36,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "frontend"
           output_location: "build"
-          deployment_action: "upload"
+          action: "upload"
 
       # --- Deploy Backend (Function App) ---
       - name: Deploy Backend to Function App
