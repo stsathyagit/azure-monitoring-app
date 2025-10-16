@@ -87,8 +87,8 @@ export default function BillingData() {
 
         const apiBaseUrl =
           process.env.NODE_ENV === "development"
-            ? "http://localhost:4280/api"
-            : "/api";
+            ? "http://localhost:7071/api"
+            : "https://func-azure-monitoring-demo.azurewebsites.net/api";
 
         const res = await fetch(
           `${apiBaseUrl}/GetBillingData?subscriptionId=${subscriptionId}`,
