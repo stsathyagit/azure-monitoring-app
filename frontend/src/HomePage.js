@@ -47,7 +47,6 @@ function Profile() {
 }
 
 function AzureSection() {
-  const { instance } = useMsal();
   const [activeSubTab, setActiveSubTab] = useState("billing");
 
   return (
