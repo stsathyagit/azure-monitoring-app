@@ -1,3 +1,12 @@
+// Validate required environment variables
+if (!process.env.REACT_APP_CLIENT_ID) {
+  throw new Error('REACT_APP_CLIENT_ID environment variable is required');
+}
+
+if (!process.env.REACT_APP_TENANT_ID) {
+  throw new Error('REACT_APP_TENANT_ID environment variable is required');
+}
+
 export const msalConfig = {
   auth: {
     clientId: process.env.REACT_APP_CLIENT_ID,

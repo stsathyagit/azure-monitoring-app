@@ -21,6 +21,17 @@ jobs:
         with:
           node-version: "18"
 
+      - name: Debug Environment Variables
+        working-directory: frontend
+        env:
+          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
+          REACT_APP_TENANT_ID: ${{ secrets.REACT_APP_TENANT_ID }}
+        run: |
+          echo "CLIENT_ID length: ${#REACT_APP_CLIENT_ID}"
+          echo "TENANT_ID length: ${#REACT_APP_TENANT_ID}"
+          echo "CLIENT_ID starts with: ${REACT_APP_CLIENT_ID:0:8}..."
+          echo "TENANT_ID starts with: ${REACT_APP_TENANT_ID:0:8}..."
+
       - name: Install and Build Frontend
         working-directory: frontend
         env:
@@ -37,7 +48,11 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           app_location: "frontend"
           output_location: "build"
+          skip_app_build: true
           action: "upload"
+        env:
+          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
+          REACT_APP_TENANT_ID: ${{ secrets.REACT_APP_TENANT_ID }}
 
       # --- Deploy Backend (Function App) ---
 
