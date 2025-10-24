@@ -1,160 +1,373 @@
 import React, { useState } from "react";
-import { useMsal, AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
+import { 
+  useMsal, 
+  AuthenticatedTemplate, 
+  UnauthenticatedTemplate 
+} from "@azure/msal-react";
 import { loginRequest } from "./authConfig";
 import BillingData from "./BillingData";
-import InvoiceData from "./InvoiceData";
+import "./HomePage.css";
+
+function LoginButton() {
+  const { instance } = useMsal();
+  return (
+    <button 
+      className="btn btn-primary"
+      onClick={() => instance.loginPopup(loginRequest)}
+    >
+      <span className="btn-icon">🔐</span>
+      Sign in to Azure
+    </button>
+  );
+}
+
+function LogoutButton() {
+  const { instance } = useMsal();
+  return (
+    <button 
+      className="btn btn-outline btn-sm"
+      onClick={() => instance.logoutPopup()}
+    >
+      Sign out
+    </button>
+  );
+}
+
+function Profile() {
+  const { accounts } = useMsal();
+  const account = accounts && accounts[0];
+  if (!account) return null;
+  
+  return (
+    <div className="profile-info">
+      <p className="profile-email">{account.username}</p>
+      <p className="profile-name">{account.name}</p>
+    </div>
+  );
+}
 
 function AzureSection() {
   const { instance } = useMsal();
   const [activeSubTab, setActiveSubTab] = useState("billing");
 
   return (
-    <div className="p-6 bg-white shadow-md rounded-lg mt-6">
-      <UnauthenticatedTemplate>
-        <div className="flex flex-col items-center justify-center h-full py-10">
-          <p className="text-gray-600 mb-4 text-lg">
-            Sign in with your Azure account to view details.
-          </p>
-          <button
-            onClick={() => instance.loginPopup(loginRequest)}
-            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md shadow hover:bg-blue-700 transition"
-          >
-            Sign In
-          </button>
+    <div className="cloud-section">
+      <div className="section-header">
+        <div className="section-title">
+          <span className="cloud-icon azure-icon">☁️</span>
+          <div>
+            <h2>Microsoft Azure</h2>
+            <p>Cost management and resource monitoring</p>
+          </div>
         </div>
-      </UnauthenticatedTemplate>
-
-      <AuthenticatedTemplate>
-        <div>
-          {/* Sub Tabs */}
-          <div className="flex space-x-6 border-b border-gray-200 mb-4">
-            <button
+        
+        <div className="section-actions">
+          <AuthenticatedTemplate>
+            <div className="sub-tabs">
+              <button 
+                className={`sub-tab ${activeSubTab === "billing" ? "active" : ""}`}
                 onClick={() => setActiveSubTab("billing")}
-                className={`pb-2 font-medium ${
-                activeSubTab === "billing"
-                    ? "border-b-2 border-blue-600 text-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-            >
-                Billing
-            </button>
-            <button
-                onClick={() => setActiveSubTab("invoice")}
-                className={`pb-2 font-medium ${
-                activeSubTab === "invoice"
-                    ? "border-b-2 border-blue-600 text-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-            >
-                Invoice
-            </button>
-            <button
+              >
+                💰 Billing
+              </button>
+              <button 
+                className={`sub-tab ${activeSubTab === "resources" ? "active" : ""}`}
                 onClick={() => setActiveSubTab("resources")}
-                className={`pb-2 font-medium ${
-                activeSubTab === "resources"
-                    ? "border-b-2 border-blue-600 text-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-            >
-                Resources
-            </button>
+              >
+                🛠️ Resources
+              </button>
+              <button 
+                className={`sub-tab ${activeSubTab === "monitoring" ? "active" : ""}`}
+                onClick={() => setActiveSubTab("monitoring")}
+              >
+                📊 Monitoring
+              </button>
             </div>
-
-
-          {/* Subtab content */}
-          {activeSubTab === "billing" && <BillingData />}
-          {activeSubTab === "invoice" && <InvoiceData />}
-          {activeSubTab === "resources" && (
-            <div className="text-gray-700 mt-4">
-                <h3 className="text-xl font-semibold mb-2">Azure Resources</h3>
-                <p>Coming soon: your Azure resources will be listed here!</p>
-            </div>
-          )}
-
+          </AuthenticatedTemplate>
         </div>
-      </AuthenticatedTemplate>
+      </div>
+
+      <div className="section-content">
+        <UnauthenticatedTemplate>
+          <div className="auth-prompt">
+            <div className="auth-card azure-auth">
+              <span className="auth-icon">☁️</span>
+              <h3>Connect to Microsoft Azure</h3>
+              <p>Sign in with your Azure account to access billing data, resource monitoring, and cost management.</p>
+              <LoginButton />
+            </div>
+          </div>
+        </UnauthenticatedTemplate>
+
+        <AuthenticatedTemplate>
+          <div className="authenticated-content">
+            {activeSubTab === "billing" && (
+              <div className="tab-content">
+                <BillingData />
+              </div>
+            )}
+            
+            {activeSubTab === "resources" && (
+              <div className="tab-content">
+                <div className="placeholder-content">
+                  <div className="summary-cards">
+                    <div className="summary-card">
+                      <div className="card-header">
+                        <h3>Virtual Machines</h3>
+                        <span className="card-icon">🖥️</span>
+                      </div>
+                      <div className="card-value">12</div>
+                      <div className="card-subtitle">Active instances</div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="card-header">
+                        <h3>Storage Accounts</h3>
+                        <span className="card-icon">💾</span>
+                      </div>
+                      <div className="card-value">8</div>
+                      <div className="card-subtitle">Total accounts</div>
+                    </div>
+                    <div className="summary-card">
+                      <div className="card-header">
+                        <h3>App Services</h3>
+                        <span className="card-icon">🌐</span>
+                      </div>
+                      <div className="card-value">5</div>
+                      <div className="card-subtitle">Running services</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {activeSubTab === "monitoring" && (
+              <div className="tab-content">
+                <div className="placeholder-content">
+                  <div className="monitoring-grid">
+                    <div className="monitoring-card">
+                      <h3>Performance Metrics</h3>
+                      <p>CPU, Memory, and Network utilization across your Azure resources.</p>
+                      <button className="btn btn-outline">View Metrics</button>
+                    </div>
+                    <div className="monitoring-card">
+                      <h3>Application Insights</h3>
+                      <p>Application performance monitoring and diagnostics.</p>
+                      <button className="btn btn-outline">Open Insights</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </AuthenticatedTemplate>
+      </div>
+    </div>
+  );
+}
+
+function AWSSection() {
+  return (
+    <div className="cloud-section">
+      <div className="section-header">
+        <div className="section-title">
+          <span className="cloud-icon aws-icon">🟠</span>
+          <div>
+            <h2>Amazon Web Services</h2>
+            <p>AWS cost management and resource monitoring</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="section-content">
+        <div className="auth-prompt">
+          <div className="auth-card aws-auth">
+            <span className="auth-icon">🟠</span>
+            <h3>Connect to AWS</h3>
+            <p>Connect your AWS account to monitor costs, resources, and performance metrics.</p>
+            <button className="btn btn-aws" disabled>
+              <span className="btn-icon">🔗</span>
+              Connect AWS (Coming Soon)
+            </button>
+          </div>
+        </div>
+        
+        <div className="placeholder-content">
+          <div className="summary-cards">
+            <div className="summary-card coming-soon">
+              <div className="card-header">
+                <h3>EC2 Instances</h3>
+                <span className="card-icon">🖥️</span>
+              </div>
+              <div className="card-value">--</div>
+              <div className="card-subtitle">Coming soon</div>
+            </div>
+            <div className="summary-card coming-soon">
+              <div className="card-header">
+                <h3>S3 Storage</h3>
+                <span className="card-icon">🪣</span>
+              </div>
+              <div className="card-value">--</div>
+              <div className="card-subtitle">Coming soon</div>
+            </div>
+            <div className="summary-card coming-soon">
+              <div className="card-header">
+                <h3>Lambda Functions</h3>
+                <span className="card-icon">⚡</span>
+              </div>
+              <div className="card-value">--</div>
+              <div className="card-subtitle">Coming soon</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GCPSection() {
+  return (
+    <div className="cloud-section">
+      <div className="section-header">
+        <div className="section-title">
+          <span className="cloud-icon gcp-icon">🔵</span>
+          <div>
+            <h2>Google Cloud Platform</h2>
+            <p>GCP cost management and resource monitoring</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="section-content">
+        <div className="auth-prompt">
+          <div className="auth-card gcp-auth">
+            <span className="auth-icon">🔵</span>
+            <h3>Connect to Google Cloud</h3>
+            <p>Connect your GCP account to monitor costs, resources, and performance metrics.</p>
+            <button className="btn btn-gcp" disabled>
+              <span className="btn-icon">🔗</span>
+              Connect GCP (Coming Soon)
+            </button>
+          </div>
+        </div>
+        
+        <div className="placeholder-content">
+          <div className="summary-cards">
+            <div className="summary-card coming-soon">
+              <div className="card-header">
+                <h3>Compute Engine</h3>
+                <span className="card-icon">🖥️</span>
+              </div>
+              <div className="card-value">--</div>
+              <div className="card-subtitle">Coming soon</div>
+            </div>
+            <div className="summary-card coming-soon">
+              <div className="card-header">
+                <h3>Cloud Storage</h3>
+                <span className="card-icon">☁️</span>
+              </div>
+              <div className="card-value">--</div>
+              <div className="card-subtitle">Coming soon</div>
+            </div>
+            <div className="summary-card coming-soon">
+              <div className="card-header">
+                <h3>Cloud Functions</h3>
+                <span className="card-icon">⚡</span>
+              </div>
+              <div className="card-value">--</div>
+              <div className="card-subtitle">Coming soon</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function HomePage() {
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("azure");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      window.location.reload();
+    }, 500);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 text-gray-800 flex flex-col">
-      {/* Navbar */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto flex justify-between items-center px-6 py-3">
-          <h1 className="text-2xl font-bold text-blue-700">☁️ Cloud Monitor</h1>
-          <nav className="space-x-6">
-            <button
-              onClick={() => setActiveTab("home")}
-              className={`font-medium ${
-                activeTab === "home" ? "text-blue-600" : "text-gray-600 hover:text-blue-600"
-              }`}
-            >
-              Home
-            </button>
-            <button
-              onClick={() => setActiveTab("azure")}
-              className={`font-medium ${
-                activeTab === "azure" ? "text-blue-600" : "text-gray-600 hover:text-blue-600"
-              }`}
-            >
-              Azure
-            </button>
-            <button
-              onClick={() => setActiveTab("aws")}
-              className={`font-medium ${
-                activeTab === "aws" ? "text-yellow-500" : "text-gray-600 hover:text-yellow-500"
-              }`}
-            >
-              AWS
-            </button>
-            <button
-              onClick={() => setActiveTab("gcp")}
-              className={`font-medium ${
-                activeTab === "gcp" ? "text-red-500" : "text-gray-600 hover:text-red-500"
-              }`}
-            >
-              GCP
-            </button>
-          </nav>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                <span className="header-cloud-icon">☁️</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">Multi-Cloud Monitoring Dashboard</h1>
+                <p className="text-sm text-muted-foreground">Unified cost management across Azure, AWS, and GCP</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button 
+                className="btn btn-outline btn-sm"
+                onClick={handleRefresh}
+                disabled={isLoading}
+              >
+                <span className={`refresh-icon ${isLoading ? 'animate-spin' : ''}`}>🔄</span>
+                Refresh
+              </button>
+              <button className="btn btn-outline btn-sm">
+                <span className="btn-icon">⚙️</span>
+                Settings
+              </button>
+              <AuthenticatedTemplate>
+                <Profile />
+                <LogoutButton />
+              </AuthenticatedTemplate>
+            </div>
+          </div>
         </div>
       </header>
 
-      {/* Page Content */}
-      <main className="flex-1 container mx-auto px-6 py-8">
-        {activeTab === "home" && (
-          <div className="text-center py-16">
-            <h2 className="text-4xl font-bold text-blue-700 mb-4">Welcome to Cloud Monitor</h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Manage and monitor your cloud usage, billing, and resources across multiple platforms — all in one place.
-            </p>
+      {/* Tab Navigation */}
+      <nav className="border-b bg-white/60 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex space-x-8">
+            <button
+              className={`tab-button ${activeTab === "azure" ? "active" : ""}`}
+              onClick={() => setActiveTab("azure")}
+            >
+              <span className="tab-icon azure-tab-icon">☁️</span>
+              Microsoft Azure
+            </button>
+            <button
+              className={`tab-button ${activeTab === "aws" ? "active" : ""}`}
+              onClick={() => setActiveTab("aws")}
+            >
+              <span className="tab-icon aws-tab-icon">🟠</span>
+              Amazon AWS
+            </button>
+            <button
+              className={`tab-button ${activeTab === "gcp" ? "active" : ""}`}
+              onClick={() => setActiveTab("gcp")}
+            >
+              <span className="tab-icon gcp-tab-icon">🔵</span>
+              Google Cloud
+            </button>
           </div>
-        )}
+        </div>
+      </nav>
 
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
         {activeTab === "azure" && <AzureSection />}
-
-        {activeTab === "aws" && (
-          <div className="bg-white p-8 rounded-lg shadow-md text-center mt-10">
-            <h3 className="text-xl font-semibold text-yellow-600">AWS Integration</h3>
-            <p className="text-gray-600 mt-2">Coming soon...</p>
-          </div>
-        )}
-
-        {activeTab === "gcp" && (
-          <div className="bg-white p-8 rounded-lg shadow-md text-center mt-10">
-            <h3 className="text-xl font-semibold text-red-600">GCP Integration</h3>
-            <p className="text-gray-600 mt-2">Coming soon...</p>
-          </div>
-        )}
+        {activeTab === "aws" && <AWSSection />}
+        {activeTab === "gcp" && <GCPSection />}
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white shadow-inner py-3 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} Cloud Monitor — Built with Azure & React
-      </footer>
     </div>
   );
 }
