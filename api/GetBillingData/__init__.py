@@ -8,10 +8,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if not access_token:
         return func.HttpResponse("Missing access token", status_code=401)
 
-    # ✅ Use a stable API version
+    # Get subscription ID from query parameter
+    subscription_id = req.params.get('subscriptionId')
+    if not subscription_id:
+        return func.HttpResponse("Missing subscriptionId parameter", status_code=400)
+
+    # ✅ Use dynamic subscription ID
     url = (
-        "https://management.azure.com/subscriptions/"
-        "c02d2716-78ec-4e2c-8623-f2fe6b6f51cd/providers/"
+        f"https://management.azure.com/subscriptions/"
+        f"{subscription_id}/providers/"
         "Microsoft.CostManagement/query?api-version=2023-03-01"
     )
 
