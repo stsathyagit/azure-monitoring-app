@@ -46,13 +46,8 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          app_location: "frontend"
-          output_location: "build"
-          skip_app_build: true
+          app_location: "frontend/build"
           action: "upload"
-        env:
-          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
-          REACT_APP_TENANT_ID: ${{ secrets.REACT_APP_TENANT_ID }}
 
       # --- Deploy Backend (Function App) ---
 
